@@ -7,6 +7,7 @@
   "type": "module",
   "scripts": {
     "build": "rimraf dist && tsc",
+    "prepare": "npm run build",
     "start": "node dist/index.js",
     "dev": "node --loader ts-node/esm src/index.ts",
     "test": "jest",
@@ -25,9 +26,8 @@
     "claude"
   ],
   "author": {
-    "name": "Your Name",
-    "email": "your.email@example.com",
-    "url": "https://your-website.com"
+    "name": "okitoxo",
+    "url": "https://github.com/okitoxo"
   },
   "license": "MIT",
   "dependencies": {
@@ -59,12 +59,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/GeLi2001/shopify-mcp"
+    "url": "https://github.com/okitoxo/shopify-mcp"
   },
   "bugs": {
-    "url": "https://github.com/GeLi2001/shopify-mcp/issues"
+    "url": "https://github.com/okitoxo/shopify-mcp/issues"
   },
-  "homepage": "https://github.com/GeLi2001/shopify-mcp#readme",
+  "homepage": "https://github.com/okitoxo/shopify-mcp#readme",
   "engines": {
     "node": ">=18.0.0"
   }

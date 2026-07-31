@@ -14,8 +14,12 @@ import { manageProductOptions } from "./manageProductOptions.js";
 import { getOrders } from "./getOrders.js";
 import { getOrderById } from "./getOrderById.js";
 import { updateOrder } from "./updateOrder.js";
+import { getDraftOrders } from "./getDraftOrders.js";
+import { getDraftOrderById } from "./getDraftOrderById.js";
 import { createDraftOrder } from "./createDraftOrder.js";
+import { updateDraftOrder } from "./updateDraftOrder.js";
 import { completeDraftOrder } from "./completeDraftOrder.js";
+import { deleteDraftOrder } from "./deleteDraftOrder.js";
 import { orderCancel } from "./orderCancel.js";
 import { orderCloseOpen } from "./orderCloseOpen.js";
 import { orderMarkAsPaid } from "./orderMarkAsPaid.js";
@@ -36,6 +40,17 @@ import { manageCustomerAddress } from "./manageCustomerAddress.js";
 import { getMetafields } from "./getMetafields.js";
 import { setMetafields } from "./setMetafields.js";
 import { deleteMetafields } from "./deleteMetafields.js";
+import { createMetafieldDefinition } from "./createMetafieldDefinition.js";
+import { updateMetafieldDefinition } from "./updateMetafieldDefinition.js";
+import { deleteMetafieldDefinition } from "./deleteMetafieldDefinition.js";
+
+// Metaobject tools
+import { getMetaobjectDefinitions } from "./getMetaobjectDefinitions.js";
+import { getMetaobjects } from "./getMetaobjects.js";
+import { getMetaobjectById } from "./getMetaobjectById.js";
+import { createMetaobject } from "./createMetaobject.js";
+import { updateMetaobject } from "./updateMetaobject.js";
+import { deleteMetaobject } from "./deleteMetaobject.js";
 
 // Convenience / cross-resource tools
 import { manageTags } from "./manageTags.js";
@@ -70,12 +85,16 @@ export const tools: ShopifyTool[] = [
   manageProductVariants,
   deleteProductVariants,
   manageProductOptions,
-  // Orders (10)
+  // Orders (14)
   getOrders,
   getOrderById,
   updateOrder,
+  getDraftOrders,
+  getDraftOrderById,
   createDraftOrder,
+  updateDraftOrder,
   completeDraftOrder,
+  deleteDraftOrder,
   orderCancel,
   orderCloseOpen,
   orderMarkAsPaid,
@@ -90,10 +109,20 @@ export const tools: ShopifyTool[] = [
   deleteCustomer,
   mergeCustomers,
   manageCustomerAddress,
-  // Metafields (3)
+  // Metafields (6)
   getMetafields,
   setMetafields,
   deleteMetafields,
+  createMetafieldDefinition,
+  updateMetafieldDefinition,
+  deleteMetafieldDefinition,
+  // Metaobjects (6)
+  getMetaobjectDefinitions,
+  getMetaobjects,
+  getMetaobjectById,
+  createMetaobject,
+  updateMetaobject,
+  deleteMetaobject,
   // Convenience (2)
   manageTags,
   setInventoryQuantities,
