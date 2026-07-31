@@ -15,7 +15,8 @@ MCP Server for Shopify API, enabling interaction with store data through GraphQL
 
 - **Product Management**: Full CRUD for products, variants, and options (8 tools)
 - **Customer Management**: Full CRUD, merge, and address management (8 tools)
-- **Order Management**: Smart lookup, cancel, close/open, mark as paid, fulfillment, refunds (10 tools)
+- **Order Management**: Smart lookup, cancel, close/open, mark as paid, fulfillment, refunds (9 tools)
+- **Draft Order Management**: Full CRUD plus completion, for phone/chat sales, invoicing, and wholesale (6 tools)
 - **Metafield Management**: Get, set, and delete metafields on any resource (3 tools)
 - **Inventory Management**: Set absolute inventory quantities at locations (1 tool)
 - **Tag Management**: Add/remove tags on any taggable resource (1 tool)
@@ -45,6 +46,7 @@ As of January 1, 2026, new Shopify apps are created in the **Dev Dashboard** and
    - `read_products`, `write_products`
    - `read_customers`, `write_customers`
    - `read_orders`, `write_orders`
+   - `read_draft_orders`, `write_draft_orders`
 4. Install the app on your store
 5. Copy your **Client ID** and **Client Secret** from the app's API credentials
 
@@ -352,7 +354,7 @@ All list query tools (`get-products`, `get-customers`, `get-orders`, `get-custom
      - `address` (object, optional): Address fields (required for create/update): `address1`, `address2`, `city`, `company`, `countryCode`, `firstName`, `lastName`, `phone`, `provinceCode`, `zip`
      - `setAsDefault` (boolean, optional): Set as customer's default address
 
-### Order Management (10 tools)
+### Order Management (9 tools)
 
 1. **`get-orders`**
 
@@ -438,24 +440,55 @@ All list query tools (`get-products`, `get-customers`, `get-orders`, `get-custom
      - `note` (string, optional): Refund note
      - `notify` (boolean, optional): Send refund notification
 
-10. **`create-draft-order`**
+### Draft Order Management (6 tools)
 
-    - Create a draft order for phone/chat sales, invoicing, or wholesale
-    - Inputs:
-      - `lineItems` (array, required): Product variants (`variantId`) or custom items (`title` + price). Max 499
-      - `customerId` (string, optional): Customer GID
-      - `email`, `phone`, `note`, `tags`, `poNumber` (optional)
-      - `shippingAddress`, `billingAddress` (objects, optional)
-      - `appliedDiscount` (object, optional): `{ title, value, valueType }` order-level discount
+1. **`get-draft-orders`**
 
-### Draft Order Management (1 tool)
+   - Get draft orders with filtering, pagination, and sorting
+   - Inputs:
+     - `status` (string, optional): `"any"`, `"open"`, `"invoice_sent"`, or `"completed"`. Default `"any"`
+     - `limit` (number, default: 10): Maximum number of draft orders to return
+     - `query` (string, optional): Raw Shopify query string
+     - `sortKey` (string, optional): One of `CUSTOMER_NAME`, `ID`, `NUMBER`, `RELEVANCE`, `STATUS`, `TOTAL_PRICE`, `UPDATED_AT`
+     - `reverse` (boolean, optional): Reverse the sort order
+     - `after` / `before` (string, optional): Pagination cursors
 
-1. **`complete-draft-order`**
+2. **`get-draft-order-by-id`**
+
+   - Get a single draft order by GID
+   - Inputs:
+     - `draftOrderId` (string, required): Draft order GID
+
+3. **`create-draft-order`**
+
+   - Create a draft order for phone/chat sales, invoicing, or wholesale
+   - Inputs:
+     - `lineItems` (array, required): Product variants (`variantId`) or custom items (`title` + price). Max 499
+     - `customerId` (string, optional): Customer GID
+     - `email`, `phone`, `note`, `tags`, `poNumber` (optional)
+     - `shippingAddress`, `billingAddress` (objects, optional)
+     - `appliedDiscount` (object, optional): `{ title, value, valueType }` order-level discount
+
+4. **`update-draft-order`**
+
+   - Update an existing draft order. Updating a draft order unlinks any checkout already started for it
+   - Inputs:
+     - `draftOrderId` (string, required): Draft order GID
+     - `lineItems` (array, optional): Replaces the full set of line items when provided
+     - Remaining inputs match `create-draft-order` (`customerId`, `email`, `phone`, `note`, `tags`, `poNumber`, `shippingAddress`, `billingAddress`, `appliedDiscount`), all optional
+
+5. **`complete-draft-order`**
 
    - Complete a draft order, converting it into a real order
    - Inputs:
      - `draftOrderId` (string, required): Draft order GID
      - `paymentGatewayId` (string, optional): Payment gateway GID
+
+6. **`delete-draft-order`**
+
+   - Delete a draft order. **Irreversible.**
+   - Inputs:
+     - `draftOrderId` (string, required): Draft order GID
 
 ### Metafield Management (3 tools)
 

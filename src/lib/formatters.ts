@@ -88,6 +88,58 @@ interface RawOrderNode {
   note: string | null;
 }
 
+interface RawDraftOrderNode {
+  id: string;
+  name: string;
+  status: string;
+  invoiceUrl: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  totalPriceSet: { shopMoney: { amount: string; currencyCode: string } };
+  subtotalPriceSet: { shopMoney: { amount: string; currencyCode: string } };
+  totalTaxSet: { shopMoney: { amount: string; currencyCode: string } };
+  customer: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    defaultEmailAddress?: { emailAddress: string } | null;
+  } | null;
+  lineItems: RawLineItemConnection;
+  tags: string[];
+  note2: string | null;
+}
+
+/**
+ * Format a raw draft order node into the standard draft order summary shape.
+ * Used by getDraftOrders and getDraftOrderById.
+ */
+export function formatDraftOrderSummary(draft: RawDraftOrderNode) {
+  return {
+    id: draft.id,
+    name: draft.name,
+    status: draft.status,
+    invoiceUrl: draft.invoiceUrl,
+    completedAt: draft.completedAt,
+    createdAt: draft.createdAt,
+    updatedAt: draft.updatedAt,
+    totalPrice: draft.totalPriceSet.shopMoney,
+    subtotalPrice: draft.subtotalPriceSet.shopMoney,
+    totalTax: draft.totalTaxSet.shopMoney,
+    customer: draft.customer
+      ? {
+          id: draft.customer.id,
+          firstName: draft.customer.firstName,
+          lastName: draft.customer.lastName,
+          email: draft.customer.defaultEmailAddress?.emailAddress || null,
+        }
+      : null,
+    lineItems: formatLineItems(draft.lineItems),
+    tags: draft.tags,
+    note: draft.note2,
+  };
+}
+
 /**
  * Format a raw order node into the standard order summary shape.
  * Used by getOrders, getCustomerOrders, and getOrderById (as a base).
