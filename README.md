@@ -2,12 +2,15 @@
 
 MCP Server for Shopify API, enabling interaction with store data through GraphQL API. This server provides tools for managing products, customers, orders, and more.
 
-**📦 Package Name: `@okitoxo/shopify-mcp`**
-**🚀 Command: `shopify-mcp`**
+**📦 Package Name: `shopify-mcp-extended`**
+**🚀 Command: `shopify-mcp-extended`**
 
 > Fork of [GeLi2001/shopify-mcp](https://github.com/GeLi2001/shopify-mcp) (MIT), adding
-> draft order read/write, metaobject, and metafield definition tools. Published under a
-> scoped name so it can be installed without `git` — the upstream package is unaffected.
+> draft order read/write (with the complete quote and discount breakdown), metaobject, and
+> metafield definition tools. Published under its own name — the upstream package is unaffected.
+>
+> Previously published as `@okitoxo/shopify-mcp` (v1.x). Renamed as of v2.0.0; update your
+> MCP config to `npx shopify-mcp-extended`.
 
 ## Features
 
@@ -49,6 +52,7 @@ As of January 1, 2026, new Shopify apps are created in the **Dev Dashboard** and
    - `read_quick_sale`, `write_quick_sale` (also required by the draft order operations)
    - `read_metaobjects`, `write_metaobjects`
    - `read_metaobject_definitions`, `write_metaobject_definitions`
+   - `read_payment_terms` (optional, only for `get-draft-order-by-id` with `includePaymentTerms: true`)
 4. Install the app on your store
 5. Copy your **Client ID** and **Client Secret** from the app's API credentials
 
@@ -68,7 +72,7 @@ If you have an existing custom app with a static `shpat_` access token, you can 
     "shopify": {
       "command": "npx",
       "args": [
-        "shopify-mcp",
+        "shopify-mcp-extended",
         "--clientId",
         "<YOUR_CLIENT_ID>",
         "--clientSecret",
@@ -89,7 +93,7 @@ If you have an existing custom app with a static `shpat_` access token, you can 
     "shopify": {
       "command": "npx",
       "args": [
-        "shopify-mcp",
+        "shopify-mcp-extended",
         "--accessToken",
         "<YOUR_ACCESS_TOKEN>",
         "--domain",
@@ -110,7 +114,7 @@ Locations for the Claude Desktop config file:
 **Client Credentials:**
 
 ```bash
-claude mcp add shopify -- npx @okitoxo/shopify-mcp \
+claude mcp add shopify -- npx shopify-mcp-extended \
   --clientId YOUR_CLIENT_ID \
   --clientSecret YOUR_CLIENT_SECRET \
   --domain your-store.myshopify.com
@@ -119,7 +123,7 @@ claude mcp add shopify -- npx @okitoxo/shopify-mcp \
 **Static Access Token (legacy):**
 
 ```bash
-claude mcp add shopify -- npx @okitoxo/shopify-mcp \
+claude mcp add shopify -- npx shopify-mcp-extended \
   --accessToken YOUR_ACCESS_TOKEN \
   --domain your-store.myshopify.com
 ```
@@ -145,7 +149,7 @@ If you prefer to use environment variables instead of command-line arguments:
 
 2. Run the server with npx:
    ```
-   npx @okitoxo/shopify-mcp
+   npx shopify-mcp-extended
    ```
 
 ### Direct Installation (Optional)
@@ -153,20 +157,20 @@ If you prefer to use environment variables instead of command-line arguments:
 If you want to install the package globally:
 
 ```
-npm install -g @okitoxo/shopify-mcp
+npm install -g shopify-mcp-extended
 ```
 
 Then run it:
 
 ```
-shopify-mcp --clientId=<ID> --clientSecret=<SECRET> --domain=<YOUR_SHOP>.myshopify.com
+shopify-mcp-extended --clientId=<ID> --clientSecret=<SECRET> --domain=<YOUR_SHOP>.myshopify.com
 ```
 
 ### Additional Options
 
 - `--apiVersion`: Specify the Shopify API version (default: `2026-01`). Can also be set via `SHOPIFY_API_VERSION` environment variable.
 
-**⚠️ Important:** If you see errors about "SHOPIFY_ACCESS_TOKEN environment variable is required" when using command-line arguments, you might have a different package installed. Make sure you're using `shopify-mcp`, not `shopify-mcp-server`.
+**⚠️ Important:** If you see errors about "SHOPIFY_ACCESS_TOKEN environment variable is required" when using command-line arguments, you might have a different package installed. Make sure you're using `shopify-mcp-extended`, not `shopify-mcp` or `shopify-mcp-server`.
 
 ## Available Tools (57)
 
@@ -444,6 +448,28 @@ All list query tools (`get-products`, `get-customers`, `get-orders`, `get-custom
 
 ### Draft Order Management (6 tools)
 
+All draft order reads and writes return the **full quote breakdown**, so a draft order
+can be reviewed exactly as the customer sees it:
+
+- **Line items**: `originalUnitPrice`, `originalTotal`, `discountedUnitPrice`, `discountedTotal`,
+  `totalDiscount`, per-line `appliedDiscount` (`title`, `value`, `valueType`, `amount`),
+  `taxLines`, `sku`, `vendor`, `variantTitle`, `custom`, `taxable`, `requiresShipping`,
+  `customAttributes`
+- **Discounts**: order-level `appliedDiscount`, `discountCodes`, `acceptAutomaticDiscounts`, and
+  `platformDiscounts` (automatic/code discounts with `title`, `code`, `summary`,
+  `presentationLevel`, `discountClasses`, `automaticDiscount`, `bxgyDiscount`, `totalAmount`)
+- **Totals**: `totalLineItemsPrice`, `lineItemsSubtotalPrice`, `subtotalPrice`, `totalDiscounts`,
+  `totalShippingPrice`, `totalTax`, `totalPrice`, `totalQuantityOfLineItems`, `totalWeight`
+- **Shipping & tax**: `shippingLine` (`title`, `originalPrice`, `discountedPrice`), `taxLines`,
+  `taxesIncluded`, `taxExempt`
+- **Context**: `currencyCode`, `presentmentCurrencyCode`, `status`, `ready`, `invoiceUrl`,
+  `invoiceSentAt`, `poNumber`, `email`, `phone`, `customer`, `shippingAddress`, `billingAddress`,
+  `customAttributes`, `tags`, `note`, and `order` (the order created on completion)
+
+Money values are returned in shop currency. When `presentmentCurrencyCode` differs from
+`currencyCode`, the customer is charged in the presentment currency and these amounts are the
+shop-currency estimate.
+
 1. **`get-draft-orders`**
 
    - Get draft orders with filtering, pagination, and sorting
@@ -460,6 +486,10 @@ All list query tools (`get-products`, `get-customers`, `get-orders`, `get-custom
    - Get a single draft order by GID
    - Inputs:
      - `draftOrderId` (string, required): Draft order GID
+     - `lineItemLimit` (number, default: 50): Maximum number of line items to return (max 250)
+     - `includePaymentTerms` (boolean, default: false): Also return payment terms
+       (`name`, `type`, `dueInDays`, `overdue`). Requires the extra `read_payment_terms`
+       access scope — the request fails if the app doesn't have it
 
 3. **`create-draft-order`**
 

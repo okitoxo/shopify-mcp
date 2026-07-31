@@ -2,7 +2,7 @@ import type { GraphQLClient } from "graphql-request";
 import { gql } from "graphql-request";
 import { z } from "zod";
 import { checkUserErrors, handleToolError } from "../lib/toolUtils.js";
-import { shippingAddressSchema } from "../lib/formatters.js";
+import { shippingAddressSchema } from "../lib/schemas.js";
 
 const ManageCustomerAddressInputSchema = z.object({
   customerId: z.string().describe("Customer GID, e.g. gid://shopify/Customer/123"),

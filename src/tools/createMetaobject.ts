@@ -2,7 +2,7 @@ import type { GraphQLClient } from "graphql-request";
 import { gql } from "graphql-request";
 import { z } from "zod";
 import { checkUserErrors, handleToolError } from "../lib/toolUtils.js";
-import { formatMetaobject } from "../lib/formatters.js";
+import { formatMetaobject } from "../lib/formatters/index.js";
 
 const CreateMetaobjectInputSchema = z.object({
   type: z

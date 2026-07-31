@@ -2,7 +2,9 @@ import type { GraphQLClient } from "graphql-request";
 import { gql } from "graphql-request";
 import { z } from "zod";
 import { checkUserErrors, handleToolError } from "../lib/toolUtils.js";
-import { shippingAddressSchema } from "../lib/formatters.js";
+import { formatDraftOrderSummary } from "../lib/formatters/index.js";
+import { DRAFT_ORDER_FIELDS, DRAFT_ORDER_LINE_ITEM_FIELDS } from "../lib/graphql/draftOrder.js";
+import { shippingAddressSchema } from "../lib/schemas.js";
 
 const CreateDraftOrderInputSchema = z.object({
   lineItems: z
@@ -68,44 +70,14 @@ const createDraftOrder = {
         mutation draftOrderCreate($input: DraftOrderInput!) {
           draftOrderCreate(input: $input) {
             draftOrder {
-              id
-              name
-              status
-              totalPriceSet {
-                shopMoney {
-                  amount
-                  currencyCode
-                }
-              }
-              subtotalPriceSet {
-                shopMoney {
-                  amount
-                  currencyCode
-                }
-              }
-              customer {
-                id
-                firstName
-                lastName
-              }
-              lineItems(first: 20) {
+              ${DRAFT_ORDER_FIELDS}
+              lineItems(first: 50) {
                 edges {
                   node {
-                    id
-                    title
-                    quantity
-                    originalTotalSet {
-                      shopMoney {
-                        amount
-                        currencyCode
-                      }
-                    }
+                    ${DRAFT_ORDER_LINE_ITEM_FIELDS}
                   }
                 }
               }
-              tags
-              note2
-              createdAt
             }
             userErrors {
               field
@@ -143,26 +115,7 @@ const createDraftOrder = {
 
       checkUserErrors(data.draftOrderCreate.userErrors, "create draft order");
 
-      const draft = data.draftOrderCreate.draftOrder;
-      return {
-        draftOrder: {
-          id: draft.id,
-          name: draft.name,
-          status: draft.status,
-          totalPrice: draft.totalPriceSet?.shopMoney,
-          subtotalPrice: draft.subtotalPriceSet?.shopMoney,
-          customer: draft.customer,
-          lineItems: draft.lineItems.edges.map((e: any) => ({
-            id: e.node.id,
-            title: e.node.title,
-            quantity: e.node.quantity,
-            originalTotal: e.node.originalTotalSet?.shopMoney,
-          })),
-          tags: draft.tags,
-          note: draft.note2,
-          createdAt: draft.createdAt,
-        },
-      };
+      return { draftOrder: formatDraftOrderSummary(data.draftOrderCreate.draftOrder) };
     } catch (error) {
       handleToolError("create draft order", error);
     }

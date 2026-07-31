@@ -2,7 +2,7 @@ import type { GraphQLClient } from "graphql-request";
 import { gql } from "graphql-request";
 import { z } from "zod";
 import { handleToolError, edgesToNodes } from "../lib/toolUtils.js";
-import { formatLineItems, formatOrderSummary } from "../lib/formatters.js";
+import { formatLineItems, formatOrderSummary } from "../lib/formatters/index.js";
 
 // Input schema for getOrderById
 const GetOrderByIdInputSchema = z.object({

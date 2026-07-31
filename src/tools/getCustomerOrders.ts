@@ -2,7 +2,7 @@ import type { GraphQLClient } from "graphql-request";
 import { gql } from "graphql-request";
 import { z } from "zod";
 import { handleToolError, edgesToNodes, type ShopifyConnection } from "../lib/toolUtils.js";
-import { formatOrderSummary } from "../lib/formatters.js";
+import { formatOrderSummary } from "../lib/formatters/index.js";
 
 // Input schema for getting customer orders
 const GetCustomerOrdersInputSchema = z.object({

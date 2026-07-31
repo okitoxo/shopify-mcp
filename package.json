@@ -1,10 +1,10 @@
 {
-  "name": "@okitoxo/shopify-mcp",
-  "version": "1.1.0",
-  "description": "MCP Server for the Shopify Admin GraphQL API. Fork of shopify-mcp adding draft order, metaobject, and metafield definition tools.",
+  "name": "shopify-mcp-extended",
+  "version": "2.0.0",
+  "description": "MCP Server for the Shopify Admin GraphQL API. Extended fork of shopify-mcp adding draft order tools with the full quote/discount breakdown, plus metaobject and metafield definition tools.",
   "main": "dist/index.js",
   "bin": {
-    "shopify-mcp": "dist/index.js"
+    "shopify-mcp-extended": "dist/index.js"
   },
   "type": "module",
   "scripts": {

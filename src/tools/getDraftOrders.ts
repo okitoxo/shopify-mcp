@@ -2,7 +2,8 @@ import type { GraphQLClient } from "graphql-request";
 import { gql } from "graphql-request";
 import { z } from "zod";
 import { handleToolError, edgesToNodes, type ShopifyConnection } from "../lib/toolUtils.js";
-import { formatDraftOrderSummary } from "../lib/formatters.js";
+import { formatDraftOrderSummary } from "../lib/formatters/index.js";
+import { DRAFT_ORDER_FIELDS, DRAFT_ORDER_LINE_ITEM_FIELDS } from "../lib/graphql/draftOrder.js";
 
 const GetDraftOrdersInputSchema = z.object({
   status: z.enum(["any", "open", "invoice_sent", "completed"]).default("any"),
@@ -23,7 +24,8 @@ let shopifyClient: GraphQLClient;
 
 const getDraftOrders = {
   name: "get-draft-orders",
-  description: "Get draft orders with optional filtering by status",
+  description:
+    "Get draft orders with optional filtering by status. Each draft order includes its full quote breakdown: line-item and order-level discounts, discount codes, automatic discounts, shipping, taxes and totals",
   schema: GetDraftOrdersInputSchema,
 
   initialize(client: GraphQLClient) {
@@ -57,61 +59,14 @@ const getDraftOrders = {
           draftOrders(first: $first, query: $query, after: $after, before: $before, sortKey: $sortKey, reverse: $reverse) {
             edges {
               node {
-                id
-                name
-                status
-                invoiceUrl
-                completedAt
-                createdAt
-                updatedAt
-                totalPriceSet {
-                  shopMoney {
-                    amount
-                    currencyCode
-                  }
-                }
-                subtotalPriceSet {
-                  shopMoney {
-                    amount
-                    currencyCode
-                  }
-                }
-                totalTaxSet {
-                  shopMoney {
-                    amount
-                    currencyCode
-                  }
-                }
-                customer {
-                  id
-                  firstName
-                  lastName
-                  defaultEmailAddress {
-                    emailAddress
-                  }
-                }
+                ${DRAFT_ORDER_FIELDS}
                 lineItems(first: 20) {
                   edges {
                     node {
-                      id
-                      title
-                      quantity
-                      originalTotalSet {
-                        shopMoney {
-                          amount
-                          currencyCode
-                        }
-                      }
-                      variant {
-                        id
-                        title
-                        sku
-                      }
+                      ${DRAFT_ORDER_LINE_ITEM_FIELDS}
                     }
                   }
                 }
-                tags
-                note2
               }
             }
             pageInfo {
