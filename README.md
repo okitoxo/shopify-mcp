@@ -17,7 +17,8 @@ MCP Server for Shopify API, enabling interaction with store data through GraphQL
 - **Customer Management**: Full CRUD, merge, and address management (8 tools)
 - **Order Management**: Smart lookup, cancel, close/open, mark as paid, fulfillment, refunds (9 tools)
 - **Draft Order Management**: Full CRUD plus completion, for phone/chat sales, invoicing, and wholesale (6 tools)
-- **Metafield Management**: Get, set, and delete metafields on any resource (3 tools)
+- **Metafield Management**: Get, set, and delete metafields on any resource, plus full definition management (6 tools)
+- **Metaobject Management**: Discover definitions and full CRUD for metaobject entries (6 tools)
 - **Inventory Management**: Set absolute inventory quantities at locations (1 tool)
 - **Tag Management**: Add/remove tags on any taggable resource (1 tool)
 - **Pagination & Sorting**: Cursor-based pagination and sort keys on all list queries
@@ -47,6 +48,9 @@ As of January 1, 2026, new Shopify apps are created in the **Dev Dashboard** and
    - `read_customers`, `write_customers`
    - `read_orders`, `write_orders`
    - `read_draft_orders`, `write_draft_orders`
+   - `read_quick_sale`, `write_quick_sale` (also required by the draft order operations)
+   - `read_metaobjects`, `write_metaobjects`
+   - `read_metaobject_definitions`, `write_metaobject_definitions`
 4. Install the app on your store
 5. Copy your **Client ID** and **Client Secret** from the app's API credentials
 
@@ -166,7 +170,7 @@ shopify-mcp --clientId=<ID> --clientSecret=<SECRET> --domain=<YOUR_SHOP>.myshopi
 
 **⚠️ Important:** If you see errors about "SHOPIFY_ACCESS_TOKEN environment variable is required" when using command-line arguments, you might have a different package installed. Make sure you're using `shopify-mcp`, not `shopify-mcp-server`.
 
-## Available Tools (31)
+## Available Tools (57)
 
 ### Pagination, Sorting & Filtering
 
@@ -490,7 +494,7 @@ All list query tools (`get-products`, `get-customers`, `get-orders`, `get-custom
    - Inputs:
      - `draftOrderId` (string, required): Draft order GID
 
-### Metafield Management (3 tools)
+### Metafield Management (6 tools)
 
 1. **`get-metafields`**
 
@@ -512,6 +516,85 @@ All list query tools (`get-products`, `get-customers`, `get-orders`, `get-custom
    - Delete metafields from any Shopify resource
    - Inputs:
      - `metafields` (array, required): Metafields to delete, each with `ownerId`, `namespace`, `key`
+
+4. **`create-metafield-definition`**
+
+   - Declare a reusable custom field on a resource type. Values are then set per-resource with `set-metafields`
+   - Inputs:
+     - `ownerType` (string, required): e.g. `PRODUCT`, `ORDER`, `CUSTOMER` (underscore aliases normalized)
+     - `key` (string, required): Unique identifier within the namespace
+     - `name` (string, required): Human-readable name shown in the admin
+     - `type` (string, required): e.g. `single_line_text_field`, `number_integer`, `list.product_reference`
+     - `namespace`, `description` (string, optional)
+     - `pin` (boolean, optional): Pin the definition in the admin
+     - `validations` (array, optional): `{ name, value }` type-specific rules
+
+5. **`update-metafield-definition`**
+
+   - Update a definition's name, description, pinning, or validations. The `type` cannot be changed after creation
+   - Inputs:
+     - `ownerType` (string, required) and `key` (string, required): Identify the definition
+     - `namespace` (string, optional): Also part of the identifier
+     - `name`, `description` (string, optional), `pin` (boolean, optional), `validations` (array, optional)
+
+6. **`delete-metafield-definition`**
+
+   - Delete a definition, by GID or by `ownerType` + `key`
+   - Inputs:
+     - `definitionId` (string, optional): Definition GID — or use `ownerType` + `key` instead
+     - `ownerType`, `key`, `namespace` (optional): Identify the definition without a GID
+     - `deleteAllAssociatedMetafields` (boolean, default: false): Also erase the stored values on every resource. **Destructive and irreversible**
+
+### Metaobject Management (6 tools)
+
+1. **`get-metaobject-definitions`**
+
+   - Discover which metaobject types exist, with their field definitions. Call this first to learn the `type` and field keys the other metaobject tools need
+   - Inputs:
+     - `first` (number, default: 50, max 100): Number of definitions to return
+     - `after` (string, optional): Pagination cursor
+
+2. **`get-metaobjects`**
+
+   - List metaobject entries of a given type, with filtering, pagination, and sorting
+   - Inputs:
+     - `type` (string, required): Definition type, e.g. `"size_chart"`
+     - `limit` (number, default: 10): Number of entries to return
+     - `query` (string, optional): Filter, e.g. `"display_name:winter"` or `"fields.season:winter"`
+     - `sortKey` (string, optional): One of `id`, `type`, `updated_at`, `display_name`
+     - `reverse` (boolean, optional): Reverse the sort order
+     - `after` / `before` (string, optional): Pagination cursors
+
+3. **`get-metaobject-by-id`**
+
+   - Get a single metaobject, by GID or by type + handle
+   - Inputs:
+     - `metaobjectId` (string, optional): Metaobject GID — or use `type` + `handle` instead
+     - `type` / `handle` (string, optional): Look up by handle within a definition type
+
+4. **`create-metaobject`**
+
+   - Create a metaobject entry for an existing definition
+   - Inputs:
+     - `type` (string, required): Definition type
+     - `fields` (array, required): `{ key, value }` pairs; values are always strings (JSON-encoded for list/reference types)
+     - `handle` (string, optional): Auto-generated if omitted
+     - `status` (string, optional): `"ACTIVE"` or `"DRAFT"`, when the definition is publishable
+
+5. **`update-metaobject`**
+
+   - Update an entry. Fields are patched individually, so omitted keys keep their current values
+   - Inputs:
+     - `metaobjectId` (string, required): Metaobject GID
+     - `fields` (array, optional): `{ key, value }` pairs to patch
+     - `handle` (string, optional), `status` (string, optional)
+     - `redirectNewHandle` (boolean, optional): Redirect the old handle when changing it
+
+6. **`delete-metaobject`**
+
+   - Delete a metaobject entry. **Irreversible**, and breaks any references to it from other resources
+   - Inputs:
+     - `metaobjectId` (string, required): Metaobject GID
 
 ### Inventory Management (1 tool)
 

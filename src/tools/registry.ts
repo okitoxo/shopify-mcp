@@ -40,6 +40,17 @@ import { manageCustomerAddress } from "./manageCustomerAddress.js";
 import { getMetafields } from "./getMetafields.js";
 import { setMetafields } from "./setMetafields.js";
 import { deleteMetafields } from "./deleteMetafields.js";
+import { createMetafieldDefinition } from "./createMetafieldDefinition.js";
+import { updateMetafieldDefinition } from "./updateMetafieldDefinition.js";
+import { deleteMetafieldDefinition } from "./deleteMetafieldDefinition.js";
+
+// Metaobject tools
+import { getMetaobjectDefinitions } from "./getMetaobjectDefinitions.js";
+import { getMetaobjects } from "./getMetaobjects.js";
+import { getMetaobjectById } from "./getMetaobjectById.js";
+import { createMetaobject } from "./createMetaobject.js";
+import { updateMetaobject } from "./updateMetaobject.js";
+import { deleteMetaobject } from "./deleteMetaobject.js";
 
 // Convenience / cross-resource tools
 import { manageTags } from "./manageTags.js";
@@ -98,10 +109,20 @@ export const tools: ShopifyTool[] = [
   deleteCustomer,
   mergeCustomers,
   manageCustomerAddress,
-  // Metafields (3)
+  // Metafields (6)
   getMetafields,
   setMetafields,
   deleteMetafields,
+  createMetafieldDefinition,
+  updateMetafieldDefinition,
+  deleteMetafieldDefinition,
+  // Metaobjects (6)
+  getMetaobjectDefinitions,
+  getMetaobjects,
+  getMetaobjectById,
+  createMetaobject,
+  updateMetaobject,
+  deleteMetaobject,
   // Convenience (2)
   manageTags,
   setInventoryQuantities,

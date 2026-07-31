@@ -2,46 +2,11 @@ import type { GraphQLClient } from "graphql-request";
 import { gql } from "graphql-request";
 import { z } from "zod";
 import { edgesToNodes, handleToolError } from "../lib/toolUtils.js";
-
-/** Map common underscore aliases to their correct Shopify API enum values */
-const OWNER_TYPE_NORMALIZE: Record<string, string> = {
-  PRODUCT_VARIANT: "PRODUCTVARIANT",
-  DRAFT_ORDER: "DRAFTORDER",
-  CART_TRANSFORM: "CARTTRANSFORM",
-};
+import { METAFIELD_OWNER_TYPES, normalizeOwnerType } from "../lib/metafieldOwnerTypes.js";
 
 const GetMetafieldDefinitionsInputSchema = z.object({
   ownerType: z
-    .enum([
-      "API_PERMISSION",
-      "ARTICLE",
-      "BLOG",
-      "CART_TRANSFORM",
-      "CARTTRANSFORM",
-      "COLLECTION",
-      "COMPANY",
-      "COMPANY_LOCATION",
-      "CUSTOMER",
-      "DELIVERY_CUSTOMIZATION",
-      "DISCOUNT",
-      "DRAFT_ORDER",
-      "DRAFTORDER",
-      "FULFILLMENT_CONSTRAINT_RULE",
-      "GIFT_CARD_TRANSACTION",
-      "LOCATION",
-      "MARKET",
-      "MEDIA_IMAGE",
-      "ORDER",
-      "ORDER_ROUTING_LOCATION_RULE",
-      "PAGE",
-      "PAYMENT_CUSTOMIZATION",
-      "PRODUCT",
-      "PRODUCT_VARIANT",
-      "PRODUCTVARIANT",
-      "SELLING_PLAN",
-      "SHOP",
-      "VALIDATION",
-    ])
+    .enum(METAFIELD_OWNER_TYPES)
     .describe(
       "The resource type to get metafield definitions for (e.g. PRODUCT, ORDER, CUSTOMER). " +
         "Note: Some Shopify types use concatenated names without underscores " +
@@ -107,7 +72,7 @@ const getMetafieldDefinitions = {
       `;
 
       const variables = {
-        ownerType: OWNER_TYPE_NORMALIZE[input.ownerType] ?? input.ownerType,
+        ownerType: normalizeOwnerType(input.ownerType),
         first: input.first ?? 50,
       };
 
