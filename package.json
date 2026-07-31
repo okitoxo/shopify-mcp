@@ -1,9 +1,11 @@
 {
-  "name": "shopify-mcp",
-  "version": "1.0.8",
-  "description": "MCP Server for Shopify API, enabling interaction with store data through GraphQL API",
+  "name": "@okitoxo/shopify-mcp",
+  "version": "1.1.0",
+  "description": "MCP Server for the Shopify Admin GraphQL API. Fork of shopify-mcp adding draft order, metaobject, and metafield definition tools.",
   "main": "dist/index.js",
-  "bin": "dist/index.js",
+  "bin": {
+    "shopify-mcp": "dist/index.js"
+  },
   "type": "module",
   "scripts": {
     "build": "rimraf dist && tsc",
@@ -57,6 +59,9 @@
     "README.md",
     "LICENSE"
   ],
+  "publishConfig": {
+    "access": "public"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/okitoxo/shopify-mcp"
