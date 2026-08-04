@@ -1,6 +1,6 @@
 {
   "name": "shopify-mcp-extended",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "MCP Server for the Shopify Admin GraphQL API. Extended fork of shopify-mcp adding draft order tools with the full quote/discount breakdown, plus metaobject and metafield definition tools.",
   "main": "dist/index.js",
   "bin": {
@@ -14,7 +14,8 @@
     "dev": "node --loader ts-node/esm src/index.ts",
     "test": "jest",
     "validate:graphql": "graphql-codegen --config .graphqlrc.ts",
-    "prepublishOnly": "npm run build",
+    "check:schemas": "npm run build && node scripts/check-tool-schemas.mjs",
+    "prepublishOnly": "npm run build && node scripts/check-tool-schemas.mjs",
     "lint": "eslint 'src/**/*.ts'",
     "clean": "rimraf dist"
   },

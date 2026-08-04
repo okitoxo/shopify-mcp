@@ -8,7 +8,7 @@ const ManageCustomerAddressInputSchema = z.object({
   customerId: z.string().describe("Customer GID, e.g. gid://shopify/Customer/123"),
   action: z.enum(["create", "update", "delete"]).describe("Action to perform"),
   addressId: z.string().optional().describe("Address GID (required for update and delete)"),
-  address: shippingAddressSchema.optional().describe("Address fields (required for create and update)"),
+  address: shippingAddressSchema().optional().describe("Address fields (required for create and update)"),
   setAsDefault: z.boolean().optional().describe("Set this address as the customer's default"),
 });
 

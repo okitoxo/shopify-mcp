@@ -11,6 +11,10 @@ MCP Server for Shopify API, enabling interaction with store data through GraphQL
 >
 > Previously published as `@okitoxo/shopify-mcp` (v1.x). Renamed as of v2.0.0; update your
 > MCP config to `npx shopify-mcp-extended`.
+>
+> **v2.0.1** fixes startup under [mcpo](https://github.com/open-webui/mcpo)
+> (`AssertionError: Custom field not found`). Every tool now emits a fully self-contained
+> JSON Schema with no `$ref`. See [CHANGELOG.md](CHANGELOG.md).
 
 ## Features
 

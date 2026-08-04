@@ -1,0 +1,25 @@
+name: Tool Schemas
+
+on:
+  pull_request:
+  push:
+    branches: ["main"]
+
+jobs:
+  check-tool-schemas:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Check tool JSON Schemas are $ref-free
+        run: npm run check:schemas
